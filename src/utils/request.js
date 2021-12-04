@@ -1,6 +1,7 @@
 import axios from 'axios'
 import router from '../router'
 import config from '../config'
+import storage from './storage'
 
 import { ElMessage } from 'element-plus'
 
@@ -17,8 +18,9 @@ const service = axios.create({
 service.interceptors.request.use((req) => {
     //  一些公共的请求机制
     const header = req.headers;
+    const { token } = storage.getItem('userInfo');
     if (!header.Authorization) {
-        header.Authorization = 'Mei';
+        header.Authorization = 'Bear ' + token;
         return req;
     }
 })
@@ -32,9 +34,9 @@ service.interceptors.response.use((res) => {
     } else if (code === 50001) {
         //token认证失败
         ElMessage.error(TOKEN_ERROR);
-        setTimeout(() => {
-            router.push('/login')
-        }, 1500)
+        // setTimeout(() => {
+        //     router.push('/login')
+        // }, 1500)
         return Promise.reject(TOKEN_ERROR);
     } else {
         ElMessage.error(msg || NETWORK_ERROR);

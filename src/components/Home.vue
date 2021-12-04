@@ -1,53 +1,3 @@
-<script>
-import { Setting, Fold, Bell, ArrowDown } from "@element-plus/icons";
-import TreeMenu from "./TreeMenu.vue";
-export default {
-  name: "Home",
-  components: {
-    setting: Setting,
-    fold: Fold,
-    bell: Bell,
-    ArrowDown,
-    TreeMenu,
-  },
-  data() {
-    return {
-      userInfo: this.$store.state.userInfo,
-      isCollapse: false,
-      noticeCount: 0,
-      userMenu: [],
-    };
-  },
-  mounted() {
-    this.getNoticeCount();
-    this.getMenuList();
-  },
-  methods: {
-    handleLogout(key) {
-      // console.log(key);
-      if (key === "email") {
-        return;
-      } else {
-        this.$store.commit("saveUserInfo", "");
-        this.userInfo = null;
-        this.$router.push("/login");
-      }
-    },
-    toggle() {
-      this.isCollapse = !this.isCollapse;
-    },
-    async getNoticeCount() {
-      const res = await this.$api.noticeCount();
-      this.noticeCount = res;
-    },
-    async getMenuList() {
-      const res = await this.$api.menuList();
-      this.userMenu = res;
-    },
-  },
-};
-</script>
-
 <template>
   <div class="basic-layout">
     <div :class="['nav-side', isCollapse ? 'fold' : 'unfold']">
@@ -92,7 +42,9 @@ export default {
       <div class="nav-top">
         <div class="nav-left">
           <fold class="menu-fold" @click="toggle"></fold>
-          <div class="bread">面包屑</div>
+          <div class="bread">
+            <Breadcrumb />
+          </div>
         </div>
         <div class="user-info">
           <el-badge :is-dot="noticeCount > 0 ? true : false" class="user-badge">
@@ -118,13 +70,63 @@ export default {
         </div>
       </div>
       <div class="wrapper">
-        <div class="main-page">
-          <router-view></router-view>
-        </div>
+        <router-view></router-view>
       </div>
     </div>
   </div>
 </template>
+
+<script>
+import { Setting, Fold, Bell, ArrowDown } from "@element-plus/icons";
+import TreeMenu from "./TreeMenu.vue";
+import Breadcrumb from "./Breadcrumb.vue";
+export default {
+  name: "Home",
+  components: {
+    setting: Setting,
+    fold: Fold,
+    bell: Bell,
+    ArrowDown,
+    TreeMenu,
+    Breadcrumb,
+  },
+  data() {
+    return {
+      userInfo: this.$store.state.userInfo,
+      isCollapse: false,
+      noticeCount: 0,
+      userMenu: [],
+    };
+  },
+  mounted() {
+    this.getNoticeCount();
+    this.getMenuList();
+  },
+  methods: {
+    handleLogout(key) {
+      // console.log(key);
+      if (key === "email") {
+        return;
+      } else {
+        this.$store.commit("saveUserInfo", "");
+        this.userInfo = null;
+        this.$router.push("/login");
+      }
+    },
+    toggle() {
+      this.isCollapse = !this.isCollapse;
+    },
+    async getNoticeCount() {
+      const res = await this.$api.noticeCount();
+      this.noticeCount = res;
+    },
+    async getMenuList() {
+      const res = await this.$api.menuList();
+      this.userMenu = res;
+    },
+  },
+};
+</script>
 
 <style lang="scss">
 .basic-layout {

@@ -25,7 +25,7 @@ app.config.globalProperties.$api = api;
 // )
 
 app.use(router);
-app.use(ElementPlus)
+app.use(ElementPlus,{size:'small'})
 app.use(store)
 app.mount('#app')
 
