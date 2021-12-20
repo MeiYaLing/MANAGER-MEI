@@ -8,6 +8,7 @@
     </el-breadcrumb-item>
   </el-breadcrumb>
 </template>
+//面包屑组件
 <script>
 export default {
   name: "Breadcrumb",

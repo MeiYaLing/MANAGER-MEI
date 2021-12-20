@@ -18,9 +18,9 @@ const service = axios.create({
 service.interceptors.request.use((req) => {
     //  一些公共的请求机制
     const header = req.headers;
-    const { token } = storage.getItem('userInfo');
+    const { token = '' } = storage.getItem('userInfo') || {};
     if (!header.Authorization) {
-        header.Authorization = 'Bear ' + token;
+        header.Authorization = 'Bearer ' + token;
         return req;
     }
 })
@@ -34,9 +34,9 @@ service.interceptors.response.use((res) => {
     } else if (code === 50001) {
         //token认证失败
         ElMessage.error(TOKEN_ERROR);
-        // setTimeout(() => {
-        //     router.push('/login')
-        // }, 1500)
+        setTimeout(() => {
+            router.push('/login')
+        }, 1500)
         return Promise.reject(TOKEN_ERROR);
     } else {
         ElMessage.error(msg || NETWORK_ERROR);
@@ -47,21 +47,23 @@ service.interceptors.response.use((res) => {
 //核心的request函数
 function request(options) {
     options.method = options.method || "get";
-    if (options.method.toLowerCase == 'get') {
-        //统一一下属性是data
+    if (options.method.toLowerCase() == 'get') {
+        //统一一下属性
         options.params = options.data;
     }
 
+    //防止值被覆盖
+    let isMock = config.mock;
     //取单个api的mock开关
     if (typeof options.mock !== 'undefined') {
-        config.mock = options.mock;
+        isMock = options.mock;
     }
 
     //这一点非常重要 若不注意，会出现p0级别的bug
     if (config.env === 'prod') {
         service.defaults.baseURL = config.baseApi;
     } else {
-        service.defaults.baseURL = config.mock ? config.mockApi : config.baseApi;
+        service.defaults.baseURL = isMock ? config.mockApi : config.baseApi;
     }
     return service(options);
 }

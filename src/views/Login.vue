@@ -52,8 +52,10 @@ export default {
     login() {
       this.$refs.userForm.validate((res) => {
         if (res) {
+          //调用登录验证接口
           this.$api.login(this.user).then((res) => {
             console.log(res);
+            //存储用户信息
             this.$store.commit("saveUserInfo", res);
             this.$router.push("/welcome");
           });

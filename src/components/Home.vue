@@ -14,43 +14,28 @@
         :collapse="isCollapse"
         router
       >
+      <!-- 使用菜单树组件 -->
         <tree-menu :userMenu="userMenu"></tree-menu>
-        <!-- <el-sub-menu index="1">
-          <template #title>
-            <el-icon class="el-icon-setting">
-              <setting></setting>
-            </el-icon>
-            <span>系统管理</span>
-          </template>
-          <el-menu-item index="1-1">用户管理</el-menu-item>
-          <el-menu-item index="1-2">菜单管理</el-menu-item>
-        </el-sub-menu>
-        <el-sub-menu index="2">
-          <template #title>
-            <el-icon class="el-icon-setting">
-              <setting></setting>
-            </el-icon>
-            <i class="el-icon-setting"></i> 
-            <span>审批管理</span>
-          </template>
-          <el-menu-item index="2-1">休假管理</el-menu-item>
-          <el-menu-item index="2-2">待我审批</el-menu-item>
-        </el-sub-menu> -->
       </el-menu>
     </div>
     <div :class="['content-right', isCollapse ? 'fold' : 'unfold']">
       <div class="nav-top">
         <div class="nav-left">
+          <!-- 折叠图标 -->
           <fold class="menu-fold" @click="toggle"></fold>
+          <!-- 面包屑 -->
           <div class="bread">
             <Breadcrumb />
           </div>
         </div>
+        <!-- 用户信息 -->
         <div class="user-info">
+          <!-- 小铃铛上的数字标记 -->
           <el-badge :is-dot="noticeCount > 0 ? true : false" class="user-badge">
             <!-- <el-icon class="el-icon-bell"><bell></bell></el-icon> -->
             <i class="el-icon-bell"></i>
           </el-badge>
+          <!-- 下拉菜单 -->
           <el-dropdown @command="handleLogout">
             <span class="user-link">
               {{ userInfo.userName }}
@@ -76,6 +61,7 @@
   </div>
 </template>
 
+//整体页面布局
 <script>
 import { Setting, Fold, Bell, ArrowDown } from "@element-plus/icons";
 import TreeMenu from "./TreeMenu.vue";
@@ -92,9 +78,9 @@ export default {
   },
   data() {
     return {
-      userInfo: this.$store.state.userInfo,
-      isCollapse: false,
-      noticeCount: 0,
+      userInfo: this.$store.state.userInfo,//用户信息
+      isCollapse: false,//菜单是否折叠
+      noticeCount: 0,//
       userMenu: [],
     };
   },
@@ -103,6 +89,7 @@ export default {
     this.getMenuList();
   },
   methods: {
+    //
     handleLogout(key) {
       // console.log(key);
       if (key === "email") {

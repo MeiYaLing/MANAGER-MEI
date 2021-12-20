@@ -21,13 +21,13 @@
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="handleQuery">查询</el-button>
-          <el-button @click="handleReset">重置</el-button>
+          <el-button @click="handleReset('form')">重置</el-button>
         </el-form-item>
       </el-form>
     </div>
     <div class="base-table">
       <div class="action">
-        <el-button type="primary">新增</el-button>
+        <el-button type="primary" @click="handleCreate">新增</el-button>
         <el-button type="danger" @click="handlePatchDelete">批量删除</el-button>
       </div>
       <el-table
@@ -46,7 +46,9 @@
         />
         <el-table-column label="操作" width="150">
           <template #default="scope">
-            <el-button type="primary" size="mini">编辑</el-button>
+            <el-button type="primary" size="mini" @click="handleEdit(scope.row)"
+              >编辑</el-button
+            >
             <el-button
               type="danger"
               size="mini"
@@ -65,25 +67,100 @@
       >
       </el-pagination>
     </div>
+    <el-dialog
+      title="用户新增"
+      v-model="showModal"
+      :before-close="handleCloseDialog"
+    >
+      <el-form
+        :model="userForm"
+        ref="dialogForm"
+        label-width="100px"
+        :rules="rules"
+      >
+        <el-form-item prop="userName" label="用户名">
+          <el-input
+            placeholder="请输入用户名"
+            v-model="userForm.userName"
+            :disabled="action === 'edit'"
+          />
+        </el-form-item>
+        <el-form-item prop="userEmail" label="邮箱">
+          <el-input
+            placeholder="请输入邮箱"
+            v-model="userForm.userEmail"
+            :disabled="action === 'edit'"
+          >
+            <template #append>@jason.com</template>
+          </el-input>
+        </el-form-item>
+        <el-form-item prop="mobile" label="手机号">
+          <el-input placeholder="请输入手机号" v-model="userForm.mobile" />
+        </el-form-item>
+        <el-form-item prop="job" label="岗位">
+          <el-input placeholder="请输入岗位" v-model="userForm.job" />
+        </el-form-item>
+        <el-form-item prop="state" label="状态">
+          <el-select v-model="userForm.state">
+            <el-option :value="1" label="在职"></el-option>
+            <el-option :value="2" label="离职"></el-option>
+            <el-option :value="3" label="试用期"></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item prop="roleList" label="系统角色">
+          <el-select
+            v-model="userForm.roleList"
+            placeholder="请选择用户系统角色"
+            multiple
+            style="width: 100%"
+          >
+            <el-option
+              v-for="role in roleList"
+              :key="role._id"
+              :value="role._id"
+              :label="role.roleName"
+            ></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item prop="deptId" label="部门">
+          <el-cascader
+            v-model="userForm.deptId"
+            placeholder="请选择部门"
+            :options="deptList"
+            :props="{ checkStrictly: true, value: '_id', label: 'deptName' }"
+            clearable
+          />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="handleClose">取消</el-button>
+          <el-button type="primary" @click="handleSubmit">确定</el-button>
+        </span>
+      </template>
+    </el-dialog>
   </div>
 </template>
 <script>
-import { onMounted, reactive, getCurrentInstance, ref } from "vue";
+import { onMounted, reactive, getCurrentInstance, ref, toRaw } from "vue";
+import utils from "../utils/utils";
 export default {
   name: "User",
   setup() {
     //获取全局对象，类似于options api里面的this
     const { proxy } = getCurrentInstance();
 
-    //生命周期函数
+    //生命周期函数  
     onMounted(() => {
       console.log("init...");
       getUserList();
+      getRoleList();
+      getDeptList();
     });
 
-    //查询数据的条件
+    //查询数据的条件(默认展示在职状态的)
     const user = reactive({
-      state: 0,
+      state: 1,
     });
 
     //解決报错:User.vue:102 Uncaught (in promise) TypeError: Assignment to constant variable.
@@ -139,10 +216,16 @@ export default {
       {
         label: "注册时间",
         prop: "createTime",
+        formatter(row, column, value) {
+          return utils.formatDate(new Date(value));
+        },
       },
       {
         label: "最后登录时间",
         prop: "lastLoginTime",
+        formatter(row, column, value) {
+          return utils.formatDate(new Date(value));
+        },
       },
     ]);
 
@@ -166,8 +249,8 @@ export default {
       getUserList();
     };
     //重置按钮
-    const handleReset = () => {
-      proxy.$refs.form.resetFields();
+    const handleReset = (form) => {
+      proxy.$refs[form].resetFields();
     };
     //分页点击
     const handleCurrentChange = (current) => {
@@ -179,7 +262,7 @@ export default {
       const res = await proxy.$api.userDelete({
         userIds: [row.userId],
       });
-      if (res.nModified > 0) {
+      if (res.modifiedCount > 0) {
         proxy.$message.success("删除成功！");
         getUserList();
       } else {
@@ -196,19 +279,126 @@ export default {
       const res = await proxy.$api.userDelete({
         userIds: checkUsersId.value,
       });
-      if (res.nModified > 0) {
+      if (res.modifiedCount > 0) {
         proxy.$message.success("删除成功！");
         getUserList();
       } else {
         proxy.$message.error("删除失败！");
       }
     };
+    //多选框事件处理
     const handleSelectionChange = (list) => {
       let arr = [];
       list.forEach((ele) => {
         arr.push(ele.userId);
       });
       checkUsersId.value = arr;
+    };
+
+    //新增用户功能控制
+    const showModal = ref(false);
+
+    //用户新增按钮
+    const handleCreate = () => {
+      showModal.value = true;
+      action.value = "add";
+    };
+
+    //用户新增对象
+    const userForm = reactive({
+      state: 1,
+    });
+
+    //新增用户的规则
+    const rules = reactive({
+      userName: [
+        {
+          required: true,
+          message: "请输入用户名",
+          trigger: "blur",
+        },
+      ],
+      userEmail: [
+        {
+          required: true,
+          message: "请输入用户邮箱",
+          trigger: "blur",
+        },
+      ],
+      deptId: [
+        {
+          required: true,
+          message: "请选择部门",
+          trigger: "blur",
+        },
+      ],
+      mobile: [
+        {
+          pattern: /1[3-9]\d{9}/,
+          message: "请输入正确的手机格式",
+          trigger: "blur",
+        },
+      ],
+    });
+
+    //获取角色列表
+    const roleList = ref([]);
+    const getRoleList = async () => {
+      const res = await proxy.$api.getRoleList();
+      roleList.value = res;
+    };
+
+    //获取部门列表
+    const deptList = ref([]);
+    const getDeptList = async () => {
+      const res = await proxy.$api.getDeptList();
+      deptList.value = res;
+    };
+
+    //新增用户弹框中的取消按钮
+    const handleClose = () => {
+      showModal.value = false;
+      handleReset("dialogForm");
+    };
+
+    //新增用户弹框中的确认按钮
+    const action = ref("add");
+    const handleSubmit = () => {
+      proxy.$refs.dialogForm.validate(async (vaild) => {
+        if (vaild) {
+          let params = toRaw(userForm);
+          console.log(params);
+          params.userEmail += "@jason.com";
+          params.action = action.value;
+          let res = await proxy.$api.userSubmit(params);
+          if (res) {
+            showModal.value = false;
+            if (action.value === "add") {
+              proxy.$message.success("新增用户成功！");
+            } else {
+              proxy.$message.success("编辑用户成功！");
+            }
+            handleReset("dialogForm");
+            getUserList();
+          }
+        }
+      });
+    };
+
+    //编辑用户
+    const handleEdit = (row) => {
+      action.value = "edit";
+      showModal.value = true;
+      //把查询到的状态转成数值
+      row.state = Number(row.state);
+      proxy.$nextTick(() => {
+        Object.assign(userForm, row);
+      });
+    };
+
+    const handleCloseDialog = () => {
+      handleReset("dialogForm");
+      showModal.value = false;
     };
 
     return {
@@ -223,6 +413,19 @@ export default {
       handlePatchDelete,
       checkUsersId,
       handleSelectionChange,
+      showModal,
+      handleCreate,
+      userForm,
+      rules,
+      getRoleList,
+      roleList,
+      deptList,
+      getDeptList,
+      handleClose,
+      handleSubmit,
+      handleEdit,
+      action,
+      handleCloseDialog,
     };
   },
 };
