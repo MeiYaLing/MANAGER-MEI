@@ -24,7 +24,7 @@ export default {
             url: "/menu/list",
             method: "get",
             data: {},
-            mock: true
+            mock: false
         })
     },
     //用户列表
@@ -65,6 +65,15 @@ export default {
     userSubmit(params) {
         return request({
             url: "/users/operate",
+            method: "post",
+            data: params,
+            mock: false
+        })
+    },
+    //菜单创建/编辑/删除
+    menuSubmit(params) {
+        return request({
+            url: "/menu/operate",
             method: "post",
             data: params,
             mock: false

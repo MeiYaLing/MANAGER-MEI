@@ -103,10 +103,12 @@ export default {
     toggle() {
       this.isCollapse = !this.isCollapse;
     },
+    //获取消息提示
     async getNoticeCount() {
       const res = await this.$api.noticeCount();
       this.noticeCount = res;
     },
+    //获取左侧菜单数据
     async getMenuList() {
       const res = await this.$api.menuList();
       this.userMenu = res;
