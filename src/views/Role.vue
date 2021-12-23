@@ -57,7 +57,7 @@
       </el-pagination>
     </div>
     <el-dialog
-      title="角色新增"
+      :title="action == 'create' ? '角色新增' : '角色编辑'"
       v-model="showModal"
       :before-close="handleCloseDialog"
     >
@@ -144,9 +144,12 @@ export default {
             let list = value.halfCheckedKeys || [];
             list.map((key) => {
               //去掉没有按钮的key
-              if (this.actionMap[key]) {
+              // console.log(this);
+              let actionMap = this.actionMap || {};
+              // console.log(actionMap);//?????this.actionMap会获取不到
+              if (actionMap[key]) {
                 //小心this指向会丢失，需要使用箭头函数
-                names.push(this.actionMap[key]);
+                names.push(actionMap[key]);
               }
             });
             return names.join(",");
@@ -162,6 +165,7 @@ export default {
       ],
       pager: {
         total: 0,
+        pageNum: 1,
         pageSize: 10,
       },
       showModal: false,
@@ -197,8 +201,6 @@ export default {
       this.roleList = list;
       this.pager = page;
     },
-    //分页
-    handleCurrentChange() {},
     //新增
     handleAdd() {
       this.showModal = true;
@@ -302,8 +304,7 @@ export default {
       this.curRoleId = row._id;
       //获取选中的值
       const { checkedKeys } = row.permissionList;
-      //宏任务
-      setTimeout(() => {
+      this.$nextTick(() => {
         //设置树选框被选中的数据
         this.$refs.permissionTree.setCheckedKeys(checkedKeys);
       });

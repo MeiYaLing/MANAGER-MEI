@@ -55,7 +55,7 @@
       </el-table>
     </div>
     <el-dialog
-      title="菜单新增"
+      :title="action=='add'?'菜单新增':'菜单编辑'"
       v-model="showModal"
       :before-close="handleCloseDialog"
     >

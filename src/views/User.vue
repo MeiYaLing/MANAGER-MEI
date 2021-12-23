@@ -68,7 +68,7 @@
       </el-pagination>
     </div>
     <el-dialog
-      title="用户新增"
+      :title="action == 'add' ? '用户新增' : '用户编辑'"
       v-model="showModal"
       :before-close="handleCloseDialog"
     >
@@ -150,7 +150,7 @@ export default {
     //获取全局对象，类似于options api里面的this
     const { proxy } = getCurrentInstance();
 
-    //生命周期函数  
+    //生命周期函数
     onMounted(() => {
       console.log("init...");
       getUserList();
@@ -351,8 +351,8 @@ export default {
     //获取部门列表
     const deptList = ref([]);
     const getDeptList = async () => {
-      const res = await proxy.$api.getDeptList();
-      deptList.value = res;
+      const { list } = await proxy.$api.getDeptList();
+      deptList.value = list;
     };
 
     //新增用户弹框中的取消按钮
