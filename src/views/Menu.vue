@@ -5,7 +5,7 @@
         <el-form-item label="菜单名称" prop="menuName">
           <el-input
             v-model="queryForm.menuName"
-            placeholder="菜单名称"
+            placeholder="请输入菜单名称"
           ></el-input>
         </el-form-item>
         <el-form-item label="菜单状态" prop="menuState">
@@ -133,14 +133,6 @@
   </div>
 </template>
 <script>
-import {
-  onMounted,
-  reactive,
-  getCurrentInstance,
-  ref,
-  toRaw,
-  getTransitionRawChildren,
-} from "vue";
 import utils from "../utils/utils";
 export default {
   name: "Menu",
@@ -237,9 +229,9 @@ export default {
       });
     },
     //删除
-    async handleDelete(_id) {
+    async handleDelete(row) {
       //不用接收，因为在二次封装时有做错误提示
-      await this.$api.menuSubmit({ _id, action: "delete" });
+      await this.$api.menuSubmit({ _id: row._id, action: "delete" });
       this.$message.success("删除成功");
       this.getMenuList();
     },
@@ -278,7 +270,7 @@ export default {
           await this.$api.menuSubmit(params);
           this.showModal = false;
           this.handleReset("dialogForm");
-          this.$message.success("用户成功");
+          this.$message.success("新增角色成功");
           this.getMenuList();
         }
       });

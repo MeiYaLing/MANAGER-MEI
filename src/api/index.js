@@ -50,7 +50,7 @@ export default {
         return request({
             url: "/roles/allList",
             method: "get",
-            mock: true
+            mock: false
         })
     },
     //部门列表
@@ -74,6 +74,33 @@ export default {
     menuSubmit(params) {
         return request({
             url: "/menu/operate",
+            method: "post",
+            data: params,
+            mock: false
+        })
+    },
+    //角色列表
+    roleList(params) {
+        return request({
+            url: "/roles/list",
+            method: "get",
+            data: params,
+            mock: false
+        })
+    },
+    //角色创建/编辑/删除
+    roleSubmit(params) {
+        return request({
+            url: "/roles/operate",
+            method: "post",
+            data: params,
+            mock: false
+        })
+    },
+    //角色设置权限
+    updatePermission(params) {
+        return request({
+            url: "/roles/update/permission",
             method: "post",
             data: params,
             mock: false
