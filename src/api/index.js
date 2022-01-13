@@ -111,7 +111,7 @@ export default {
         return request({
             url: "/dept/list",
             method: "get",
-            data: params, 
+            data: params,
             mock: false
         })
     },
@@ -121,6 +121,14 @@ export default {
             url: "/dept/operate",
             method: "post",
             data: params,
+            mock: false
+        })
+    },
+    //用户权限列表
+    getPermissionList() {
+        return request({
+            url: "/users/getPermissionList",
+            method: "get",
             mock: false
         })
     },

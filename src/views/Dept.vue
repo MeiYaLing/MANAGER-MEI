@@ -18,7 +18,7 @@
     </div>
     <div class="base-table">
       <div class="action">
-        <el-button type="primary" @click="handleAdd">新建</el-button>
+        <el-button type="primary" @click="handleAdd">新增</el-button>
       </div>
       <el-table
         :data="deptList"
@@ -209,7 +209,7 @@ export default {
     handleReset(form) {
       this.$refs[form].resetFields();
     },
-    //新建
+    //新增
     handleAdd() {
       this.showModal = true;
       this.action = "create";

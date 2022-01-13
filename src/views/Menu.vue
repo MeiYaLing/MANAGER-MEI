@@ -22,7 +22,7 @@
     </div>
     <div class="base-table">
       <div class="action">
-        <el-button type="primary" @click="handleAdd(1)">新增</el-button>
+        <el-button type="primary" @click="handleAdd(1)" v-has="'menu-create'">新增</el-button>
       </div>
       <el-table :data="menuList" style="width: 100%" row-key="_id">
         <el-table-column
@@ -39,15 +39,17 @@
               type="primary"
               size="mini"
               @click="handleAdd(2, scope.row)"
+              v-has="'menu-create'"
               >新增</el-button
             >
-            <el-button size="mini" @click="handleEdit(scope.row)"
+            <el-button size="mini" @click="handleEdit(scope.row)" v-has="'menu-edit'"
               >编辑</el-button
             >
             <el-button
               type="danger"
               size="mini"
               @click="handleDelete(scope.row)"
+              v-has="'menu-delete'"
               >删除</el-button
             >
           </template>
@@ -270,7 +272,7 @@ export default {
           await this.$api.menuSubmit(params);
           this.showModal = false;
           this.handleReset("dialogForm");
-          this.$message.success("新增角色成功");
+          this.$message.success("操作成功");
           this.getMenuList();
         }
       });

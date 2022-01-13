@@ -20,5 +20,30 @@ export default {
             }
         }
         return fmt;
+    },
+
+    //递归拼接菜单的路由信息
+    getRouterInfo(menuList) {
+        let routers = [];
+        const deep = (menuList) => {
+            while (menuList.length) {
+                let item = menuList.pop();
+                if (item.action) {
+                    //有按钮则说明是菜单
+                    routers.push({
+                        name: item.component,
+                        path: item.path,
+                        meta: {
+                            title: item.menuName
+                        },
+                        component: item.component
+                    })
+                } else if (item.children && !item.action) {
+                    deep(item.children);
+                }
+            }
+        }
+        deep(menuList);
+        return routers;
     }
 }

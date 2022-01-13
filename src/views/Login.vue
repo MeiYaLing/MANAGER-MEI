@@ -28,6 +28,7 @@
 </template>
 <script>
 import { User, View } from "@element-plus/icons";
+import utils from "../utils/utils";
 
 export default {
   name: "login",
@@ -53,11 +54,23 @@ export default {
       this.$refs.userForm.validate((res) => {
         if (res) {
           //调用登录验证接口
-          this.$api.login(this.user).then((res) => {
+          this.$api.login(this.user).then(async (res) => {
             console.log(res);
             //存储用户信息
             this.$store.commit("saveUserInfo", res);
             this.$router.push("/welcome");
+            // debugger;
+            //加载动态路由
+            //通过接口获取用户权限列表
+            const { menuList } = await this.$api.getPermissionList();
+            let routers = utils.getRouterInfo(menuList);
+            routers.map((route) => {
+              //处理component的值
+              let url = `../views/${route.name}.vue`;
+              route.component = () => import(url);
+              //添加至路由库
+              this.$router.addRoute("home", route);
+            });
           });
         }
       });

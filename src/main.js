@@ -24,8 +24,25 @@ app.config.globalProperties.$api = api;
 //     }
 // )
 
+//指令的封装
+app.directive('has', {
+    beforeMount: (el, binding) => {
+        let userAction = storage.getItem('actionList');
+        let value = binding.value;
+        let hasPermission = userAction.includes(value);
+        if (!hasPermission) {
+            //若没有该按钮，则隐藏并删除该节点
+            el.style.display = 'none';
+            setTimeout(() => {
+                el.parentNode.removeChild(el);
+            }, 0)
+        }
+
+    }
+})
+
 app.use(router);
-app.use(ElementPlus,{size:'small'})
+app.use(ElementPlus, { size: 'small' })
 app.use(store)
 app.mount('#app')
 

@@ -14,7 +14,7 @@
         :collapse="isCollapse"
         router
       >
-      <!-- 使用菜单树组件 -->
+        <!-- 使用菜单树组件 -->
         <tree-menu :userMenu="userMenu"></tree-menu>
       </el-menu>
     </div>
@@ -78,9 +78,9 @@ export default {
   },
   data() {
     return {
-      userInfo: this.$store.state.userInfo,//用户信息
-      isCollapse: false,//菜单是否折叠
-      noticeCount: 0,//
+      userInfo: this.$store.state.userInfo, //用户信息
+      isCollapse: false, //菜单是否折叠
+      noticeCount: 0, //
       userMenu: [],
     };
   },
@@ -110,8 +110,11 @@ export default {
     },
     //获取左侧菜单数据
     async getMenuList() {
-      const res = await this.$api.menuList();
-      this.userMenu = res;
+      //根据用户权限获取其可操作的菜单
+      const { menuList, actionList } = await this.$api.getPermissionList();
+      this.userMenu = menuList;
+      this.$store.commit("saveMenuList",menuList);
+      this.$store.commit("saveActionList",actionList);
     },
   },
 };
